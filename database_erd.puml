@@ -1,0 +1,128 @@
+@startuml Team Activity Hub ERD
+
+' ==========================================
+' CONFIGURATION & THEME
+' ==========================================
+!theme plain
+skinparam linetype ortho
+skinparam roundcorner 8
+skinparam shadowing false
+skinparam handwritten false
+
+skinparam class {
+    BackgroundColor #FFFFFF
+    BorderColor #2B2D42
+    ArrowColor #3D5A80
+    BorderThickness 1.5
+}
+
+' ==========================================
+' ENTITIES DEFINITIONS
+' ==========================================
+
+entity "users (Pengguna)" as users {
+    * id : VARCHAR(36) <<PK>>
+    --
+    * email : VARCHAR(255) <<UNIQUE>>
+    * password : VARCHAR(255)
+    * displayName : VARCHAR(255)
+    photoURL : VARCHAR(255)
+    role : ENUM('admin', 'creator', 'editor', 'user')
+    debtBalance : DECIMAL(10,2)
+    rotationIndex : INT
+    createdAt : TIMESTAMP
+}
+
+entity "workspaces (Ruang Kerja)" as workspaces {
+    * id : VARCHAR(36) <<PK>>
+    --
+    * name : VARCHAR(255)
+    * inviteCode : VARCHAR(10) <<UNIQUE>>
+    * ownerId : VARCHAR(36) <<FK -> users.id>>
+    createdAt : TIMESTAMP
+}
+
+entity "workspace_members (Anggota Ruang Kerja)" as workspace_members {
+    * workspaceId : VARCHAR(36) <<PK, FK -> workspaces.id>>
+    * userId : VARCHAR(36) <<PK, FK -> users.id>>
+    --
+    role : ENUM('admin', 'member')
+    joinedAt : TIMESTAMP
+}
+
+entity "workspace_invitations (Undangan Ruang Kerja)" as workspace_invitations {
+    * id : VARCHAR(36) <<PK>>
+    --
+    * workspaceId : VARCHAR(36) <<FK -> workspaces.id>>
+    * inviterId : VARCHAR(36) <<FK -> users.id>>
+    * inviteeEmail : VARCHAR(255)
+    status : ENUM('pending', 'accepted', 'declined')
+    createdAt : TIMESTAMP
+}
+
+entity "content_plans (Rencana Konten)" as content_plans {
+    * id : VARCHAR(36) <<PK>>
+    --
+    * workspaceId : VARCHAR(36) <<FK -> workspaces.id>>
+    * title : VARCHAR(255)
+    type : VARCHAR(50)
+    status : VARCHAR(50)
+    assignedTo : VARCHAR(36) <<FK -> users.id>>
+    backedUpBy : VARCHAR(36) <<FK -> users.id>>
+    targetDate : DATE
+    description : TEXT
+    createdAt : TIMESTAMP
+}
+
+entity "repository_files (Arsip Berkas)" as repository_files {
+    * id : VARCHAR(36) <<PK>>
+    --
+    * workspaceId : VARCHAR(36) <<FK -> workspaces.id>>
+    * name : VARCHAR(255)
+    * type : VARCHAR(100)
+    size : VARCHAR(50)
+    url : LONGTEXT
+    uploadedBy : VARCHAR(36) <<FK -> users.id>>
+    createdAt : TIMESTAMP
+}
+
+entity "content_debts (Hutang Konten)" as content_debts {
+    * id : VARCHAR(36) <<PK>>
+    --
+    * workspaceId : VARCHAR(36) <<FK -> workspaces.id>>
+    * planId : VARCHAR(36) <<FK -> content_plans.id>>
+    * owedBy : VARCHAR(36) <<FK -> users.id>>
+    * owedTo : VARCHAR(36) <<FK -> users.id>>
+    status : VARCHAR(20)
+    createdAt : TIMESTAMP
+}
+
+' ==========================================
+' RELATIONSHIPS (Crow's Foot Notation)
+' ==========================================
+
+' Hubungan User & Workspace
+users ||--o{ workspaces : "owns"
+workspaces ||--o{ workspace_members : "has members"
+users ||--o{ workspace_members : "is member of"
+
+' Hubungan Workspace & Invitations
+workspaces ||--o{ workspace_invitations : "sent from"
+users ||--o{ workspace_invitations : "invited by"
+
+' Hubungan Content Plans
+workspaces ||--o{ content_plans : "manages"
+users |o--o{ content_plans : "assigned to"
+users |o--o{ content_plans : "backed up by"
+
+' Hubungan Repository Files
+workspaces ||--o{ repository_files : "stores"
+users |o--o{ repository_files : "uploaded by"
+
+' Hubungan Content Debts
+workspaces ||--o{ content_debts : "records"
+content_plans ||--o{ content_debts : "results in"
+users ||--o{ content_debts : "owed by"
+users ||--o{ content_debts : "owed to"
+
+@enduml

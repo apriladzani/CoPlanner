@@ -1,0 +1,5 @@
+{
+  "name": "Team Activity Hub",
+  "description": "Local-first collaborative team management system with activity tracking, team creation, and invitation features.",
+  "requestFramePermissions": []
+}

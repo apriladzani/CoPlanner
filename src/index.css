@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+@layer base {
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+}
+
+body {
+  @apply bg-[#0F1115] text-white antialiased;
+}
+
+/* Prose overrides for markdown */
+.prose {
+  @apply text-gray-300;
+}
+.prose strong {
+  @apply text-white font-bold;
+}
+.prose h1, .prose h2, .prose h3 {
+  @apply text-white font-bold mt-4 mb-2;
+}
+.prose p {
+  @apply mb-4 leading-relaxed;
+}
+.prose ul {
+  @apply list-disc list-inside mb-4;
+}
+.prose code {
+  @apply bg-white/10 px-1.5 py-0.5 rounded text-purple-400 font-mono text-xs;
+}
